@@ -102,7 +102,19 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-if lsof -nP -iTCP:8081 -sTCP:LISTEN >/dev/null 2>&1; then
+# lsof cannot always see listening sockets it does not own, so ask Node to try
+# an actual connection instead.
+port_in_use() {
+  node -e "
+    const net = require('net');
+    const socket = net.connect($1, '127.0.0.1');
+    socket.on('connect', () => { socket.end(); process.exit(0); });
+    socket.on('error', () => process.exit(1));
+    setTimeout(() => process.exit(1), 1000);
+  " >/dev/null 2>&1
+}
+
+if port_in_use 8081; then
   info "Relay already running on port 8081, leaving it alone."
 else
   info "Starting OSC relay..."
