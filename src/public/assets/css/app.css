@@ -512,22 +512,27 @@ input[type='file'] {
 
 #SoundSearch {
   position: absolute;
-  bottom: 10px;
-  left: 190px;
-  width: 240px;
+  bottom: 55px;
+  left: 20px;
+  width: 250px;
   background-color: rgba(255, 255, 255, 0.6);
   font-family: roboto, 'helvetica neue', helvetica, arial, sans-serif;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 15px;
   padding: 10px;
   padding-bottom: 0px;
-  box-shadow: 0 0 5px #aaa; }
+  box-shadow: 0 0 5px #aaa;
+  border-radius: 10px; }
 
 #search-input {
   width: 100%;
   display: block;
   margin-bottom: 10px;
   box-sizing: border-box;
+  border-radius: 5px;
+  font-size: 15px;
+  border-style: solid;
+  border-color: #dcdbdd;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box; }
 
@@ -547,9 +552,9 @@ input[type='file'] {
 
 #download-link {
   /* margin: 5px; */
-  font-size: 12px;
+  font-size: 15px;
   cursor: pointer;
-  color: #1177ff;
+  color: #313131;
   text-decoration: underline; }
 
 #search-result {
@@ -878,3 +883,51 @@ input[type='file'] {
     opacity: 0.5; }
   100% {
     opacity: 0; } }
+
+#oscMode {
+  z-index: 2;
+  position: absolute;
+  top: 16px;
+  left: 550px;
+  cursor: pointer;
+  color: #5d5e5d; }
+
+#oscMode:hover {
+  opacity: 0.8; }
+
+#oscMode.active {
+  color: #2196f3; }
+
+#osc-panel {
+  z-index: 2;
+  position: absolute;
+  top: 45px;
+  left: 550px;
+  padding: 10px 12px;
+  background: #ececec;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #5d5e5d; }
+
+#osc-panel label {
+  display: block;
+  margin-bottom: 4px; }
+
+#osc-port {
+  width: 80px;
+  padding: 3px 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 13px;
+  color: #5d5e5d; }
+
+#osc-status {
+  margin-top: 6px;
+  font-size: 12px; }
+
+#osc-status.osc-ok {
+  color: #2e7d32; }
+
+#osc-status.osc-warn {
+  color: #b26500; }

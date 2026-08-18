@@ -24,6 +24,7 @@ import Action from './model/action';
 
 // Managers
 import Interaction from './managers/interaction';
+import OSC from './managers/osc';
 import GUIWindow from './managers/guiwindow';
 import SoundSearch from './managers/SoundSearch';
 
@@ -210,6 +211,9 @@ export default class Main {
     this.altitudeHelper.rotation.x = Math.PI / 2;
     this.scene.add(this.altitudeHelper);
     this.scene.add(this.axisHelper);
+
+    // External control of the head model over OSC, via the osc-bridge relay
+    this.osc = new OSC(this);
 
     // ui elements
     if(navigator.clipboard && window.isSecureContext){
@@ -1641,6 +1645,10 @@ export default class Main {
       key = key.key;
     }
     this.head = this.scene.getObjectByName('dummyHead', true);
+
+    /* Applies the latest OSC update, if any, before the branches below run. */
+    if (this.osc) this.osc.update();
+
     // for current user's head
     if (this.head && ((this.isAddingTrajectory && (this.activeObject && this.activeObject.type == 'HeadObject'))
       || (this.isAllowMouseDrag && !this.headObject.trajectory)
