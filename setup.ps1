@@ -48,8 +48,11 @@ else {
 # node_modules is committed upstream, so its presence proves nothing about
 # whether it matches package.json. Always let npm reconcile the two; it is
 # quick when there is nothing to do.
+# --legacy-peer-deps because sass-loader 6 declares a peer of node-sass 4
+# while the project pins node-sass 8. The conflict predates this work and is
+# harmless: nothing imports .scss through webpack, so sass-loader never runs.
 Info 'Checking app dependencies...'
-npm install
+npm install --legacy-peer-deps
 if ($LASTEXITCODE -ne 0) { Fail "npm install failed in $RepoDir." }
 
 if (-not (Test-Path 'osc-bridge\node_modules')) {
