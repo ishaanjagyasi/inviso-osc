@@ -28,24 +28,87 @@ Incoming messages are buffered and the latest value is applied once per animatio
 
 A panel in the top bar toggles OSC on and off, sets the UDP port, and reports relay status. Both settings persist between sessions.
 
+## Requirements
+
+* **Node 16.** The project builds with webpack 2, which calls the `md4` hash. OpenSSL 3 removed it, so builds fail on Node 17 and later with a `digital envelope routines::unsupported` error. Node 16 still ships OpenSSL 1.1 and needs no workaround.
+* **A C++ toolchain.** `node-sass` publishes no prebuilt binary for Apple Silicon, so it is compiled from source. On macOS this needs the Xcode command line tools; on Debian/Ubuntu, `build-essential` and `python3`; on Windows, the Visual Studio Build Tools.
+* **Python 3** with `python-osc`, only if you want to run the included test script.
+
 ## Setup
 
-Requires Node 16 — the project builds with webpack 2, which fails on Node 17 and later.
+### Automated
+
+From a fresh machine, `bootstrap.sh` clones the repository and sets everything up in one step:
+
+```
+./bootstrap.sh                    # clones into ./inviso-osc
+./bootstrap.sh ~/projects/inviso  # or a directory of your choice
+```
+
+If the repository is already cloned, run the setup script from inside it instead:
 
 ```
 ./setup.sh      # macOS and Linux
 .\setup.ps1     # Windows
 ```
 
-The script works from wherever the repository was cloned. It selects Node 16 through nvm, installs dependencies for both the app and the relay, rebuilds `node-sass` if no prebuilt binary is available for the platform, starts the relay, and opens the app at `localhost:8080`.
+Both scripts resolve paths from their own location, so the clone can live anywhere. They select Node 16 through nvm — offering to install nvm if it is missing — install dependencies for both the app and the relay, rebuild `node-sass` when no prebuilt binary loads, start the relay, and launch the app at `localhost:8080`.
 
-To clone and set up in one step on a new machine, use `bootstrap.sh` (or `bootstrap.ps1`). Re-running it updates an existing clone.
+Re-running either script is safe. Existing clones are updated rather than replaced, completed steps are skipped, and a relay that is already running is reused instead of starting a second one.
 
-On Apple Silicon, `node-sass` has no prebuilt binary and is compiled from source, which requires the Xcode command line tools:
+### Manual
+
+The equivalent steps, if you would rather run them yourself:
 
 ```
+# 1. toolchain (macOS shown; see Requirements for other platforms)
 xcode-select --install
+
+# 2. Node 16
+brew install nvm
+nvm install 16
+nvm use 16
+
+# 3. dependencies
+npm install
+cd osc-bridge && npm install && cd ..
+
+# 4. node-sass, only if it fails to load on your platform
+node -e "require('node-sass')" || npm rebuild node-sass --build-from-source
 ```
+
+Then start the two processes in separate terminals:
+
+```
+npm run dev                     # app on localhost:8080
+cd osc-bridge && npm start      # relay: WebSocket 8081, OSC over UDP
+```
+
+`npm run dev` runs three tasks in parallel: a `node-sass` watcher compiling `src/css` to `src/public/assets/css`, a webpack dev server, and a webpack watch build. Note that the repository ships with `node_modules` committed upstream, so the initial clone is around 80 MB and `npm install` often has nothing to do.
+
+### Ports
+
+| Port | Protocol | Used by |
+| --- | --- | --- |
+| 8080 | HTTP | webpack dev server |
+| 8081 | WebSocket | relay to browser |
+| configurable | UDP | OSC input, set in the app |
+
+## Build and deploy
+
+```
+npm run build     # clean build/, copy src/public across, compile js and css
+npm run deploy    # publish build/public to the gh-pages branch
+```
+
+`build/` is committed to the repository, so rebuild before deploying or you will publish a stale bundle. The full list of individual scripts is in [`inviso_original_readme.md`](inviso_original_readme.md).
+
+Two pre-existing quirks are worth knowing about, both inherited from upstream and unrelated to OSC:
+
+* **The build scripts use Windows syntax.** `build:js` is `set NODE_ENV=1&& webpack`, which only sets the variable on Windows. On macOS and Linux it silently does nothing, so webpack stays in development mode and writes an unminified bundle to `src/public/assets/js`. What lands in `build/public/assets/js` is then just the development bundle copied across by `build:dir`. The output is functional — this is how the site is currently published — but it is not minified.
+* **Forcing production mode currently fails.** Running `NODE_ENV=1 npx webpack` does enter production mode, but the build then errors with `ERROR in app.js from UglifyJs — Unexpected token: operator (*)`. The UglifyJS bundled with webpack 2 cannot parse the ES6 generator syntax present in the bundle. Because `NoEmitOnErrorsPlugin` is enabled, nothing is emitted. Minified production builds would need a newer minifier.
+
+OSC requires the relay to be running on the same machine as the browser, since a web page cannot open a listening socket. A deployed build loads and runs normally without it — the OSC panel simply reports that the relay is not running, and keyboard and mouse control are unaffected.
 
 ## Usage
 
