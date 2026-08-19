@@ -45,14 +45,12 @@ else {
 
 # --- Dependencies ------------------------------------------------------------
 
-if (-not (Test-Path 'node_modules')) {
-    Info 'Installing app dependencies (this takes a few minutes)...'
-    npm install
-    if ($LASTEXITCODE -ne 0) { Fail "npm install failed in $RepoDir." }
-}
-else {
-    Info 'App dependencies already installed.'
-}
+# node_modules is committed upstream, so its presence proves nothing about
+# whether it matches package.json. Always let npm reconcile the two; it is
+# quick when there is nothing to do.
+Info 'Checking app dependencies...'
+npm install
+if ($LASTEXITCODE -ne 0) { Fail "npm install failed in $RepoDir." }
 
 if (-not (Test-Path 'osc-bridge\node_modules')) {
     Info 'Installing relay dependencies...'

@@ -1,6 +1,9 @@
 // Global imports
 const webpack = require('webpack');
 const path = require('path');
+// The UglifyJS bundled with webpack 2 predates ES2016 and cannot parse the
+// exponentiation operator that reaches the bundle from three.js.
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 // Paths
 const entry = ['./node_modules/regenerator-runtime/runtime.js','./src/js/app.js'];
@@ -39,15 +42,17 @@ if (PROD) {
 
   const uglifyOptions = {
     sourceMap: false,
-    mangle: true,
-    compress: {
-      drop_console: true,
-    },
-    output: {
-      comments: false,
+    uglifyOptions: {
+      mangle: true,
+      compress: {
+        drop_console: true,
+      },
+      output: {
+        comments: false,
+      },
     },
   };
-  plugins.push(new webpack.optimize.UglifyJsPlugin(uglifyOptions));
+  plugins.push(new UglifyJsPlugin(uglifyOptions));
 } else {
     plugins.push(new webpack.LoaderOptionsPlugin({ debug: true }));
 }

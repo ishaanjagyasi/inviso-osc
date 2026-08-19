@@ -51,6 +51,13 @@
       <div id=save>Export</div>
       <div id=load>Import</div>
       <div id=outputMode>Output: Binaural</div>
+      <div id="oscMode" title="Toggle external listener control over OSC">OSC: Off</div>
+
+      <div id="osc-panel" style="display: none">
+        <label for="osc-port">Listen on UDP port</label>
+        <input id="osc-port" type="number" min="1024" max="65535" step="1" value="9000">
+        <div id="osc-status" class="osc-warn">Relay not running</div>
+      </div>
       <div id=collab title="Invite or Join a Room">Invite | Join</div>
 
       <div id="search-clear-search-button">Search for Sounds</div>

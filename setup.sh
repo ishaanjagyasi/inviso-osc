@@ -71,12 +71,11 @@ fi
 
 # --- Dependencies ------------------------------------------------------------
 
-if [ ! -d node_modules ]; then
-  info "Installing app dependencies (this takes a few minutes)..."
-  npm install || fail "npm install failed in $REPO_DIR."
-else
-  info "App dependencies already installed."
-fi
+# node_modules is committed upstream, so its presence proves nothing about
+# whether it matches package.json. Always let npm reconcile the two; it is
+# quick when there is nothing to do.
+info "Checking app dependencies..."
+npm install || fail "npm install failed in $REPO_DIR."
 
 if [ ! -d osc-bridge/node_modules ]; then
   info "Installing relay dependencies..."

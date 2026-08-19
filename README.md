@@ -103,10 +103,12 @@ npm run deploy    # publish build/public to the gh-pages branch
 
 `build/` is committed to the repository, so rebuild before deploying or you will publish a stale bundle. The full list of individual scripts is in [`inviso_original_readme.md`](inviso_original_readme.md).
 
-Two pre-existing quirks are worth knowing about, both inherited from upstream and unrelated to OSC:
+A production build emits a minified bundle of roughly 1.6 MB, against 7 MB in development.
 
-* **The build scripts use Windows syntax.** `build:js` is `set NODE_ENV=1&& webpack`, which only sets the variable on Windows. On macOS and Linux it silently does nothing, so webpack stays in development mode and writes an unminified bundle to `src/public/assets/js`. What lands in `build/public/assets/js` is then just the development bundle copied across by `build:dir`. The output is functional — this is how the site is currently published — but it is not minified.
-* **Forcing production mode currently fails.** Running `NODE_ENV=1 npx webpack` does enter production mode, but the build then errors with `ERROR in app.js from UglifyJs — Unexpected token: operator (*)`. The UglifyJS bundled with webpack 2 cannot parse the ES6 generator syntax present in the bundle. Because `NoEmitOnErrorsPlugin` is enabled, nothing is emitted. Minified production builds would need a newer minifier.
+Two issues in the upstream build had to be fixed to make that work, both unrelated to OSC:
+
+* The build scripts set `NODE_ENV` with `set VAR=value&&`, which only works on Windows. On macOS and Linux it silently did nothing, so webpack stayed in development mode and the build published an unminified bundle. The scripts now use `cross-env`.
+* Forcing production mode then failed in UglifyJS with `Unexpected token: operator (*)`. The UglifyJS bundled with webpack 2 predates ES2016 and cannot parse the exponentiation operator that reaches the bundle from three.js. The config now uses `uglifyjs-webpack-plugin`, which is built on `uglify-es`.
 
 OSC requires the relay to be running on the same machine as the browser, since a web page cannot open a listening socket. A deployed build loads and runs normally without it — the OSC panel simply reports that the relay is not running, and keyboard and mouse control are unaffected.
 
