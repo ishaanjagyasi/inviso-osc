@@ -1,5 +1,7 @@
 # Inviso with OSC control
 
+![Controlling the Inviso listener head over OSC](docs/osc-demo.gif)
+
 A cross-platform tool for designing interactive virtual soundscapes, extended with external control of the listener head over OSC.
 
 Inviso lets you build 3D soundscapes in the browser: place sound objects, draw sound zones, animate them along trajectories, and move a listener head through the scene to hear the result binaurally or as 3rd-order ambisonics. An ACM UIST paper about Inviso, including a video figure, can be found [here](https://dl.acm.org/citation.cfm?doid=3126594.3126644).
